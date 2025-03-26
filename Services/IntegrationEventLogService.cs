@@ -7,20 +7,20 @@ using System.Text;
 
 namespace MessageBus.IntegrationEventLog.EF.Services;
 
-public class EFIntegrationEventLogService<TContext> : IIntegrationEventLogService, IDisposable
+public class IntegrationEventLogService<TContext> : IIntegrationEventLogService, IDisposable
     where TContext : DbContext
 {
     private volatile bool _disposedValue;
     private readonly TContext _context;
 
-    public EFIntegrationEventLogService(TContext context)
+    public IntegrationEventLogService(TContext context)
     {
         _context = context;
     }
 
     public async Task<IEnumerable<IIntegrationEventLog>> RetrievePendingEventLogs(int batchSize,CancellationToken cancellationToken)
     {
-        var result = await _context.Set<EFCoreIntegrationEventLog>()
+        var result = await _context.Set<Models.IntegrationEventLog>()
                                    .Where(e => e.State == EventStateEnum.NotPublished)
                                    .OrderBy(e => e.CreationTime)
                                    .Take(batchSize)
@@ -32,7 +32,7 @@ public class EFIntegrationEventLogService<TContext> : IIntegrationEventLogServic
     public async Task<TIntegrationEventLog> SaveEvent<TIntegrationEventLog>(IntegrationEvent @event, CancellationToken cancellationToken) 
         where TIntegrationEventLog : class, IIntegrationEventLog
     {
-        var integrationEventLog = new EFCoreIntegrationEventLog(@event) as TIntegrationEventLog;
+        var integrationEventLog = new Models.IntegrationEventLog(@event) as TIntegrationEventLog;
         if (integrationEventLog is null)
             throw new InvalidOperationException($"Cannot cast {nameof(integrationEventLog)} to {nameof(TIntegrationEventLog)}");
 
@@ -59,15 +59,15 @@ public class EFIntegrationEventLogService<TContext> : IIntegrationEventLogServic
     public async Task<bool> FailedMessageChainExists(string? entityId, CancellationToken cancellationToken)
     {
         entityId = entityId ?? "NoEntity";
-        return await _context.Set<FailedMessageChainEF>()
+        return await _context.Set<FailedMessageChain>()
                              .AnyAsync(fmc => fmc.EntityId == entityId)
                              .ConfigureAwait(false);
     }
 
     public async Task AddInFailedMessageChain(string? entityId,string eventShortName, string body, Exception? exception, CancellationToken cancellationToken)
     {
-        FailedMessageChainEF? targetFiledMessageChain = null;
-        targetFiledMessageChain = await _context.Set<FailedMessageChainEF>()
+        FailedMessageChain? targetFiledMessageChain = null;
+        targetFiledMessageChain = await _context.Set<FailedMessageChain>()
                                                 .Include(fmc => fmc.FailedMessages)
                                                 .FirstOrDefaultAsync(fmc => fmc.EntityId == entityId, cancellationToken)
                                                 .ConfigureAwait(false);
@@ -76,7 +76,7 @@ public class EFIntegrationEventLogService<TContext> : IIntegrationEventLogServic
             targetFiledMessageChain = new()
             {
                 EntityId = entityId ?? "NoEntity",
-                FailedMessages = new List<FailedMessageEF>()
+                FailedMessages = new List<FailedMessage>()
                 {
                     new()
                     {
@@ -87,7 +87,7 @@ public class EFIntegrationEventLogService<TContext> : IIntegrationEventLogServic
                     }
                 }
             };
-            _context.Set<FailedMessageChainEF>().Add(targetFiledMessageChain);
+            _context.Set<FailedMessageChain>().Add(targetFiledMessageChain);
         }
         else
         {
@@ -99,7 +99,7 @@ public class EFIntegrationEventLogService<TContext> : IIntegrationEventLogServic
                 EventTypeShortName = eventShortName
             });
 
-            _context.Set<FailedMessageChainEF>().Update(targetFiledMessageChain);
+            _context.Set<FailedMessageChain>().Update(targetFiledMessageChain);
         }
         await _context.SaveChangesAsync(cancellationToken);
     }
@@ -118,7 +118,7 @@ public class EFIntegrationEventLogService<TContext> : IIntegrationEventLogServic
 
     private async Task UpdateEventStatus(Guid eventId, EventStateEnum status, CancellationToken cancellationToken)
     {
-        var eventLogEntry = _context.Set<EFCoreIntegrationEventLog>().Single(ie => ie.EventId == eventId);
+        var eventLogEntry = _context.Set<Models.IntegrationEventLog>().Single(ie => ie.EventId == eventId);
         eventLogEntry.State = status;
 
         if (status == EventStateEnum.InProgress)

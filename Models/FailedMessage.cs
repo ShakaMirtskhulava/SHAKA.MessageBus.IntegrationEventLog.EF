@@ -6,7 +6,7 @@ using System.Text.Json;
 
 namespace MessageBus.IntegrationEventLog.EF.Models;
 
-public class FailedMessageEF : IFailedMessage
+public class FailedMessage : IFailedMessage
 {
     private static readonly JsonSerializerOptions s_caseInsensitiveOptions = new() { PropertyNameCaseInsensitive = true };
 
@@ -26,7 +26,7 @@ public class FailedMessageEF : IFailedMessage
     public string? StackTrace { get; set; }
 
     public int FailedMessageChainId { get; set; }
-    public FailedMessageChainEF? FailedMessageChain { get; set; }
+    public FailedMessageChain? FailedMessageChain { get; set; }
 
     public IFailedMessage DeserializeJsonBody(Type type)
     {

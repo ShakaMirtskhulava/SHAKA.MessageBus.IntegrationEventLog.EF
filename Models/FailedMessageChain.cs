@@ -4,7 +4,7 @@ using System.ComponentModel.DataAnnotations.Schema;
 
 namespace MessageBus.IntegrationEventLog.EF.Models;
 
-public class FailedMessageChainEF : IFailedMessageChain<FailedMessageEF>
+public class FailedMessageChain : IFailedMessageChain<FailedMessage>
 {
     [Key]
     public int Id { get; set; }
@@ -15,5 +15,5 @@ public class FailedMessageChainEF : IFailedMessageChain<FailedMessageEF>
     [Required]
     public required string EntityId { get; set; }
     [NotMapped]
-    public ICollection<FailedMessageEF>? FailedMessages { get; set; }
+    public ICollection<FailedMessage>? FailedMessages { get; set; }
 }

@@ -9,18 +9,18 @@ using System.Reflection;
 
 namespace MessageBus.IntegrationEventLog.EF.Services;
 
-public class EFCoreIntegrationEventService<TContext> : IIntegrationEventService where TContext : DbContext
+public class IntegrationEventService<TContext> : IIntegrationEventService where TContext : DbContext
 {
     private readonly DbContext _dbContext;
     private readonly UnitOfWork<TContext> _unitOfWork;
     private readonly IIntegrationEventLogService _integrationEventLogService;
     private readonly IEventBus _eventBus;
     private readonly Type[] _eventTypes;
-    private readonly ILogger<EFCoreIntegrationEventService<TContext>> _logger;
+    private readonly ILogger<IntegrationEventService<TContext>> _logger;
 
-    public EFCoreIntegrationEventService(TContext dbContext, UnitOfWork<TContext> unitOfWork,
+    public IntegrationEventService(TContext dbContext, UnitOfWork<TContext> unitOfWork,
         IIntegrationEventLogService integrationEventLogService, IEventBus eventBus,
-        string eventTyepsAssemblyName, ILogger<EFCoreIntegrationEventService<TContext>> logger)
+        string eventTyepsAssemblyName, ILogger<IntegrationEventService<TContext>> logger)
     {
         _dbContext = dbContext;
         _unitOfWork = unitOfWork;
@@ -48,7 +48,7 @@ public class EFCoreIntegrationEventService<TContext> : IIntegrationEventService 
 
     public async Task<IEnumerable<IntegrationEvent>> RetriveFailedEventsToRepublish(int chainBatchSize, CancellationToken cancellationToken)
     {
-        var chians = await _dbContext.Set<FailedMessageChainEF>()
+        var chians = await _dbContext.Set<FailedMessageChain>()
                                    .Include(fmch => fmch.FailedMessages)
                                    .Where(e => e.ShouldRepublish)
                                    .OrderBy(e => e.CreationTime)
@@ -74,7 +74,7 @@ public class EFCoreIntegrationEventService<TContext> : IIntegrationEventService 
             }
         }
 
-        _dbContext.Set<FailedMessageChainEF>().RemoveRange(chians);
+        _dbContext.Set<FailedMessageChain>().RemoveRange(chians);
         await _dbContext.SaveChangesAsync(cancellationToken);
 
         return failedEvents;
@@ -92,7 +92,7 @@ public class EFCoreIntegrationEventService<TContext> : IIntegrationEventService 
                 var insertedEntity = await _dbContext.Set<TEntity>().AddAsync(entity, cancellationToken);
                 await _dbContext.SaveChangesAsync(cancellationToken);
                 evt.EntityId = insertedEntity.Entity.Id;
-                await _integrationEventLogService.SaveEvent<EFCoreIntegrationEventLog>(evt, cancellationToken);
+                await _integrationEventLogService.SaveEvent<Models.IntegrationEventLog>(evt, cancellationToken);
                 await _unitOfWork.CommitTransaction(cancellationToken);
                 return evt;
             }
@@ -117,7 +117,7 @@ public class EFCoreIntegrationEventService<TContext> : IIntegrationEventService 
                 var insertedEntity = _dbContext.Set<TEntity>().Update(entity);
                 await _dbContext.SaveChangesAsync(cancellationToken);
                 evt.EntityId = insertedEntity.Entity.Id;
-                await _integrationEventLogService.SaveEvent<EFCoreIntegrationEventLog>(evt, cancellationToken);
+                await _integrationEventLogService.SaveEvent<Models.IntegrationEventLog>(evt, cancellationToken);
                 await _unitOfWork.CommitTransaction(cancellationToken);
                 return evt;
             }
@@ -142,7 +142,7 @@ public class EFCoreIntegrationEventService<TContext> : IIntegrationEventService 
                 var insertedEntity = _dbContext.Set<TEntity>().Remove(entity);
                 await _dbContext.SaveChangesAsync(cancellationToken);
                 evt.EntityId = insertedEntity.Entity.Id;
-                await _integrationEventLogService.SaveEvent<EFCoreIntegrationEventLog>(evt, cancellationToken);
+                await _integrationEventLogService.SaveEvent<Models.IntegrationEventLog>(evt, cancellationToken);
                 await _unitOfWork.CommitTransaction(cancellationToken);
                 return evt;
             }

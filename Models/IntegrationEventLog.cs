@@ -7,15 +7,15 @@ using System.Text.Json;
 
 namespace MessageBus.IntegrationEventLog.EF.Models;
 
-public class EFCoreIntegrationEventLog : IIntegrationEventLog
+public class IntegrationEventLog : IIntegrationEventLog
 {
     private static readonly JsonSerializerOptions s_indentedOptions = new() { WriteIndented = true };
     private static readonly JsonSerializerOptions s_caseInsensitiveOptions = new() { PropertyNameCaseInsensitive = true };
 
-    private EFCoreIntegrationEventLog() { }
+    private IntegrationEventLog() { }
     
     [SetsRequiredMembers]
-    public EFCoreIntegrationEventLog(IntegrationEvent @event)
+    public IntegrationEventLog(IntegrationEvent @event)
     {
         EventId = @event.Id;
         CreationTime = @event.CreationDate;
