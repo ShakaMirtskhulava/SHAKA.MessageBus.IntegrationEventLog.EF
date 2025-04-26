@@ -1,5 +1,4 @@
-﻿using MessageBus.Abstractions;
-using MessageBus.Events;
+﻿using MessageBus.Events;
 using MessageBus.IntegrationEventLog.EF.Models;
 using MessageBus.IntegrationEventLog.Models;
 using MessageBus.IntegrationEventLog.Services;
@@ -14,18 +13,16 @@ public class IntegrationEventService<TContext> : IIntegrationEventService where 
     private readonly DbContext _dbContext;
     private readonly UnitOfWork<TContext> _unitOfWork;
     private readonly IIntegrationEventLogService _integrationEventLogService;
-    private readonly IEventBus _eventBus;
     private readonly Type[] _eventTypes;
     private readonly ILogger<IntegrationEventService<TContext>> _logger;
 
     public IntegrationEventService(TContext dbContext, UnitOfWork<TContext> unitOfWork,
-        IIntegrationEventLogService integrationEventLogService, IEventBus eventBus,
+        IIntegrationEventLogService integrationEventLogService,
         string eventTyepsAssemblyName, ILogger<IntegrationEventService<TContext>> logger)
     {
         _dbContext = dbContext;
         _unitOfWork = unitOfWork;
         _integrationEventLogService = integrationEventLogService;
-        _eventBus = eventBus;
         _eventTypes = Assembly.Load(eventTyepsAssemblyName).GetTypes()
             .Where(t => t.IsSubclassOf(typeof(IntegrationEvent))).ToArray();
         _logger = logger;
@@ -48,7 +45,7 @@ public class IntegrationEventService<TContext> : IIntegrationEventService where 
 
     public async Task<IEnumerable<IntegrationEvent>> RetriveFailedEventsToRepublish(int chainBatchSize, CancellationToken cancellationToken)
     {
-        var chians = await _dbContext.Set<FailedMessageChain>()
+        var chains = await _dbContext.Set<FailedMessageChain>()
                                    .Include(fmch => fmch.FailedMessages)
                                    .Where(e => e.ShouldRepublish)
                                    .OrderBy(e => e.CreationTime)
@@ -56,7 +53,7 @@ public class IntegrationEventService<TContext> : IIntegrationEventService where 
                                    .ToListAsync(cancellationToken);
 
         List<IntegrationEvent> failedEvents = new();
-        foreach (var chain in chians)
+        foreach (var chain in chains)
         {
             if(chain.FailedMessages is null || !chain.FailedMessages.Any())
                 continue;
@@ -74,7 +71,7 @@ public class IntegrationEventService<TContext> : IIntegrationEventService where 
             }
         }
 
-        _dbContext.Set<FailedMessageChain>().RemoveRange(chians);
+        _dbContext.Set<FailedMessageChain>().RemoveRange(chains);
         await _dbContext.SaveChangesAsync(cancellationToken);
 
         return failedEvents;
