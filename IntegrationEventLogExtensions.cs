@@ -60,7 +60,7 @@ public static class IntegrationEventLogExtensions
                 var eventBus = scope.ServiceProvider.GetRequiredService<IEventBus>();
                 var logger = scope.ServiceProvider.GetRequiredService<ILogger<IntegrationEventService<TContext>>>();
 
-                return new IntegrationEventService<TContext>(dbContext, unitOfWork, integrationEventLogService, eventBus, eventTyepsAssemblyName, logger);
+                return new IntegrationEventService<TContext>(dbContext, unitOfWork, integrationEventLogService, eventTyepsAssemblyName, logger);
             }
         );
     }
@@ -82,7 +82,7 @@ public static class IntegrationEventLogExtensions
                 var eventBus = scope.ServiceProvider.GetRequiredService<IEventBus>();
                 var logger = scope.ServiceProvider.GetRequiredService<ILogger<IntegrationEventService<TContext>>>();
 
-                return new IntegrationEventService<TContext>(dbContext, unitOfWork, integrationEventLogService, eventBus, options.EventTyepsAssemblyName, logger);
+                return new IntegrationEventService<TContext>(dbContext, unitOfWork, integrationEventLogService, options.EventTyepsAssemblyName, logger);
             }
         );
     }
