@@ -111,9 +111,9 @@ public class IntegrationEventService<TContext> : IIntegrationEventService where 
             await _unitOfWork.BeginTransaction(cancellationToken);
             try
             {
-                var insertedEntity = _dbContext.Set<TEntity>().Update(entity);
+                var updatedEntity = _dbContext.Set<TEntity>().Update(entity);
                 await _dbContext.SaveChangesAsync(cancellationToken);
-                evt.EntityId = insertedEntity.Entity.Id;
+                evt.EntityId = updatedEntity.Entity.Id;
                 await _integrationEventLogService.SaveEvent<Models.IntegrationEventLog>(evt, cancellationToken);
                 await _unitOfWork.CommitTransaction(cancellationToken);
                 return evt;
@@ -136,9 +136,9 @@ public class IntegrationEventService<TContext> : IIntegrationEventService where 
             await _unitOfWork.BeginTransaction(cancellationToken);
             try
             {
-                var insertedEntity = _dbContext.Set<TEntity>().Remove(entity);
+                var removedEntity = _dbContext.Set<TEntity>().Remove(entity);
                 await _dbContext.SaveChangesAsync(cancellationToken);
-                evt.EntityId = insertedEntity.Entity.Id;
+                evt.EntityId = removedEntity.Entity.Id;
                 await _integrationEventLogService.SaveEvent<Models.IntegrationEventLog>(evt, cancellationToken);
                 await _unitOfWork.CommitTransaction(cancellationToken);
                 return evt;

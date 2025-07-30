@@ -66,11 +66,10 @@ public class IntegrationEventLogService<TContext> : IIntegrationEventLogService,
 
     public async Task AddInFailedMessageChain(string? entityId,string eventShortName, string body, Exception? exception, CancellationToken cancellationToken)
     {
-        FailedMessageChain? targetFiledMessageChain = null;
-        targetFiledMessageChain = await _context.Set<FailedMessageChain>()
-                                                .Include(fmc => fmc.FailedMessages)
-                                                .FirstOrDefaultAsync(fmc => fmc.EntityId == entityId, cancellationToken)
-                                                .ConfigureAwait(false);
+        FailedMessageChain? targetFiledMessageChain = await _context.Set<FailedMessageChain>()
+                                                                    .Include(fmc => fmc.FailedMessages)
+                                                                    .FirstOrDefaultAsync(fmc => fmc.EntityId == entityId, cancellationToken)
+                                                                    .ConfigureAwait(false);
         if (targetFiledMessageChain is null)
         {
             targetFiledMessageChain = new()
