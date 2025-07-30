@@ -48,7 +48,7 @@ In addition to configuring services, this method also registers the **Background
 ## Usage Scenarios
 This package supports **two approaches** for integrating event publishing and handling logic:
 1. **Single .NET Application Approach**: The same application handles both publishing and processing of events. Use `ConfigureEventLogServicesWithPublisher()` to set up the publisher and handlers within the same project.
-2. **Distributed Approach**: The publisher and event handlers exist in separate applications. Use `ConfigureEventLogServices()` in the publisher app to log events, while another service handles publishing and processing.
+2. **Distributed Approach**: The publisher and event handlers exist in separate applications. Use `ConfigureEventLogServices()` in the initiator app to log events, while another service handles publishing and processing.
 
 ---
 This implementation enhances **event consistency, failure recovery, and transaction reliability** in an event-driven microservices architecture.
