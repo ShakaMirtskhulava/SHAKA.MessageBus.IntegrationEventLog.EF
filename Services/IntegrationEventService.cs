@@ -43,7 +43,7 @@ public class IntegrationEventService<TContext> : IIntegrationEventService where 
         return pendingEventLogs.Select(e => e.IntegrationEvent).ToList();
     }
 
-    public async Task<IEnumerable<IntegrationEvent>> RetriveFailedEventsToRepublish(int chainBatchSize, CancellationToken cancellationToken)
+    public async Task<IEnumerable<IntegrationEvent>> RetrievFailedEventsToRepublish(int chainBatchSize, CancellationToken cancellationToken)
     {
         var chains = await _dbContext.Set<FailedMessageChain>()
                                    .Include(fmch => fmch.FailedMessages)
