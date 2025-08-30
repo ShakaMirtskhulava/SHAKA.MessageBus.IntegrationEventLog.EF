@@ -43,7 +43,7 @@ public class IntegrationEventService<TContext> : IIntegrationEventService where 
         return pendingEventLogs.Select(e => e.IntegrationEvent).ToList();
     }
 
-    public async Task<IEnumerable<IntegrationEvent>> RetrievFailedEventsToRepublish(int chainBatchSize, CancellationToken cancellationToken)
+    public async Task<IEnumerable<IntegrationEvent>> RetriveFailedEventsToRepublish(int chainBatchSize, CancellationToken cancellationToken)
     {
         var chains = await _dbContext.Set<FailedMessageChain>()
                                    .Include(fmch => fmch.FailedMessages)
@@ -55,7 +55,7 @@ public class IntegrationEventService<TContext> : IIntegrationEventService where 
         List<IntegrationEvent> failedEvents = new();
         foreach (var chain in chains)
         {
-            if(chain.FailedMessages is null || !chain.FailedMessages.Any())
+            if (chain.FailedMessages is null || !chain.FailedMessages.Any())
                 continue;
 
             foreach (var failedMessage in chain.FailedMessages)
@@ -76,6 +76,7 @@ public class IntegrationEventService<TContext> : IIntegrationEventService where 
 
         return failedEvents;
     }
+
 
     public async Task<IntegrationEvent> Add<TEntity, TEntityKey>(TEntity entity,IntegrationEvent evt, CancellationToken cancellationToken)
         where TEntity : class, IEntity<TEntityKey>

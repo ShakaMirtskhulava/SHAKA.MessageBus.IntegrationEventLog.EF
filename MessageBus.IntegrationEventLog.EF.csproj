@@ -7,7 +7,7 @@
     <GeneratePackageOnBuild>True</GeneratePackageOnBuild>
     <PackageId>SHAKA.MessageBus.IntegrationEventLog.EF</PackageId>
     <Title>SHAKA MessageBus IntegrationEventLog EF</Title>
-    <Version>1.0.1</Version>
+    <Version>1.0.2</Version>
     <Authors>Shaka Mirtskhulava</Authors>
     <Company>LAM</Company>
     <Description>A robust EF Core-based implementation of `SHAKA.MessageBus.IntegrationEventLog`, enabling seamless event persistence, failure tracking, and reliable publishing in event-driven systems.</Description>
