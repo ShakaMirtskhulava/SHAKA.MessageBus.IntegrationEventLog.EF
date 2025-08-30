@@ -27,7 +27,7 @@ public class IntegrationEventLog : IIntegrationEventLog
         State = EventStateEnum.NotPublished;
         TimesSent = 0;
         IntegrationEvent = @event;
-        EntityId = @event.EntityId!.ToString()!;
+        EntityId = @event.EntityId?.ToString();
     }
     public Guid EventId { get; private set; }
     [Required]
@@ -36,7 +36,6 @@ public class IntegrationEventLog : IIntegrationEventLog
     public string EventTypeShortName => EventTypeName.Split('.')!.Last();
     [NotMapped]
     public required IntegrationEvent IntegrationEvent { get; set; }
-    [Required]
     public string? EntityId { get; private set; }
     public EventStateEnum State { get; set; }
     public int TimesSent { get; set; }
